@@ -3,12 +3,19 @@ package main
 import (
 	"log"
   "net/http"
+	"fmt"
+
+	"caligula/database"
 )
 
 func main() {
-  r := setupRouter(AllRoutes())
+	db := database.Init()
+	defer db.Close()
 
-  if err := http.ListenAndServe(":3000", r); err != nil {
+  router := setupRouter(AllRoutes())
+
+  fmt.Println("Running on port 3000")
+  if err := http.ListenAndServe(":3000", router); err != nil {
 		log.Fatal(err)
   }
 }

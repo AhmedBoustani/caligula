@@ -1,5 +1,7 @@
 # Custom
 bin/*
+.idea/*
+badger/*
 
 # Binaries for programs and plugins
 *.exe

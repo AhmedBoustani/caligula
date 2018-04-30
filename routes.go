@@ -19,7 +19,7 @@ type Routes []Route
 
 func AllRoutes() Routes {
 	routes := Routes{
-    Route{"GET", "/", handlers.Welcome},
+    Route{ "POST", "/", handlers.AddShortUrl },
 	}
 	return routes
 }
