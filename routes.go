@@ -16,10 +16,10 @@ type Route struct {
 
 type Routes []Route
 
-
 func AllRoutes() Routes {
 	routes := Routes{
     Route{ "POST", "/", handlers.AddShortUrl },
+    Route{ "GET", "/{url}", handlers.FetchLongUrl },
 	}
 	return routes
 }

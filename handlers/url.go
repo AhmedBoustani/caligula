@@ -1,19 +1,26 @@
 package handlers
 
 import (
-  "fmt"
   "encoding/json"
   "net/http"
 
+  "github.com/gorilla/mux"
+
+  "caligula/database"
   "caligula/urlShortner"
 )
 
-type req_body struct {
+type reqBody struct {
   URL string
 }
 
+type resBody struct {
+   LongUrl string
+   ShortUrl string
+}
+
 func AddShortUrl(w http.ResponseWriter, r *http.Request) {
-  var u req_body
+  var u reqBody
   if r.Body == nil {
      http.Error(w, "Please send a request body", 400)
      return
@@ -25,8 +32,26 @@ func AddShortUrl(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  s := urlShortner.Encode(u.URL)
+  s := resBody{u.URL, urlShortner.Shorten(u.URL)}
 
-  fmt.Println(s)
-  fmt.Println(len(s))
+  res, err := json.Marshal(s)
+  w.WriteHeader(201)
+  w.Header().Set("Content-Type", "application/json")
+  w.Write(res)
+}
+
+func FetchLongUrl(w http.ResponseWriter, r *http.Request) {
+  vars := mux.Vars(r)
+  val, err := database.Find(vars["url"])
+  if err != nil {
+    http.Error(w, err.Error(), 500)
+    return
+  }
+
+  if val == "" {
+    http.Error(w, "Url not found", 404)
+    return
+  }
+
+  http.Redirect(w, r, val, http.StatusSeeOther)
 }
