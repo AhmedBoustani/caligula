@@ -1,17 +1,12 @@
 package main
 
 import (
+	"fmt"
 	"log"
   "net/http"
-	"fmt"
-
-	"caligula/database"
 )
 
 func main() {
-	db := database.Init()
-	defer db.Close()
-
   router := setupRouter(AllRoutes())
 
   fmt.Println("Running on port 3000")
