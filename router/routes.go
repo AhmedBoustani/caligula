@@ -1,9 +1,9 @@
-package main
+package router
 
 import (
   "net/http"
 
-  "caligula/handlers"
+  "caligula/api"
 )
 
 type RouteHandler func(http.ResponseWriter, *http.Request)
@@ -16,10 +16,10 @@ type Route struct {
 
 type Routes []Route
 
-func AllRoutes() Routes {
+func getAllRoutes() Routes {
 	routes := Routes{
-    Route{ "POST", "/", handlers.AddShortUrl },
-    Route{ "GET", "/{url}", handlers.FetchLongUrl },
+    Route{ "POST", "/", api.AddShortUrl },
+    Route{ "GET", "/{url}", api.FetchLongUrl },
 	}
 	return routes
 }

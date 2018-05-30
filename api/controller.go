@@ -1,4 +1,4 @@
-package handlers
+package api
 
 import (
   "encoding/json"
@@ -6,18 +6,8 @@ import (
 
   "github.com/gorilla/mux"
 
-  "caligula/database"
-  "caligula/urlShortner"
+  "caligula/caligula"
 )
-
-type reqBody struct {
-  URL string
-}
-
-type resBody struct {
-   LongUrl string
-   ShortUrl string
-}
 
 func AddShortUrl(w http.ResponseWriter, r *http.Request) {
   var u reqBody
@@ -32,7 +22,7 @@ func AddShortUrl(w http.ResponseWriter, r *http.Request) {
     return
   }
 
-  s := resBody{u.URL, urlShortner.Shorten(u.URL)}
+  s := resBody{u.URL, caligula.Shorten(u.URL)}
 
   res, err := json.Marshal(s)
   w.WriteHeader(201)
@@ -42,7 +32,7 @@ func AddShortUrl(w http.ResponseWriter, r *http.Request) {
 
 func FetchLongUrl(w http.ResponseWriter, r *http.Request) {
   vars := mux.Vars(r)
-  val, err := database.Find(vars["url"])
+  val, err := caligula.Db.Find(vars["url"])
   if err != nil {
     http.Error(w, err.Error(), 500)
     return

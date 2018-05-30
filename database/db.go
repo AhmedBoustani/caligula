@@ -6,25 +6,31 @@ import (
   "github.com/dgraph-io/badger"
 )
 
-var db *badger.DB
-
-func Init() *badger.DB {
-  opts := badger.DefaultOptions
-  opts.Dir = "badger"
-  opts.ValueDir = "badger"
-  db, err := badger.Open(opts)
-  if err != nil {
-    log.Fatal(err)
-  }
-
-  return db
+type Database struct {
+  opts  badger.Options
+  name  string
 }
 
-func Find(key string) (string, error) {
-  hit := ""
-  db := Init()
+func New(name string) *Database {
+  return &Database{ name: name }
+}
+
+func (d *Database) Init() {
+  opts := badger.DefaultOptions
+  opts.Dir = "badger/" + d.name
+  opts.ValueDir = "badger/" + d.name
+}
+
+func (d *Database) Find(key string) (string, error) {
+  db, err := badger.Open(d.opts)
+  if err != nil {
+    log.Println(d.name, "open error: ", err.Error())
+    return "", err
+  }
   defer db.Close()
-  err := db.View(func(txn *badger.Txn) error {
+
+  hit := ""
+  err = db.View(func(txn *badger.Txn) error {
     item, err := txn.Get([]byte(key))
     if err != nil {
       if err == badger.ErrKeyNotFound {
@@ -48,22 +54,24 @@ func Find(key string) (string, error) {
   return hit, nil
 }
 
-func Add(key string, value string) error {
-  db := Init()
+func (d *Database) Add(key string, value string) error {
+  db, err := badger.Open(d.opts)
+  if err != nil {
+    log.Println(d.name, "open error: ", err.Error())
+    return err
+  }
   defer db.Close()
-  err := db.Update(func(tx *badger.Txn) error {
-    // Start a writable transaction.
+
+  err = db.Update(func(tx *badger.Txn) error {
     txn := db.NewTransaction(true)
 
     defer txn.Discard()
 
-    // Use the transaction...
     err := txn.Set([]byte(key), []byte(value))
     if err != nil {
       return err
     }
 
-    // Commit the transaction and check for error.
     if err := txn.Commit(nil); err != nil {
       return err
     }

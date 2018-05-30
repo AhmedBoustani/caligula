@@ -1,11 +1,12 @@
-package main
+package router
 
 import (
   "github.com/gorilla/mux"
 )
 
-func setupRouter(routes Routes) *mux.Router {
+func Setup() *mux.Router {
   router := mux.NewRouter()
+  routes := getAllRoutes()
 
   for _, route := range routes {
 		handle := Logger(route.HandlerFunc)
