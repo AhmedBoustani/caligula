@@ -5,6 +5,7 @@ import (
 
   "caligula/database"
 )
+
 var Db database.Database
 
 func InitDB() *database.Database {
